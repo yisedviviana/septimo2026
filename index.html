@@ -1,0 +1,305 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Detectives Digitales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=JetBrains+Mono:wght@500&family=Nunito:wght@400;700&display=swap">
+<style>
+/* Layout: encabezado con ruta de misiones, un panel de trabajo a la vez, pie con notas para el docente.
+   Palette: tinta azul, verde petróleo como acento, semáforo propio para acierto / alerta / error. */
+:root{
+  --bg:#EBF0F4;--surface:#FFFFFF;--ink:#12263F;--muted:#4C5E73;--line:#CBD5DF;
+  --accent:#0B7A75;--accent-ink:#FFFFFF;--accent-soft:#D5ECEA;
+  --ok:#1B7F4B;--ok-bg:#DDF2E6;--bad:#B3372F;--bad-bg:#F8E1DF;--warn:#8F520A;--warn-bg:#FBEBD0;
+  --focus:#1F5FBF;
+  --f-display:'Bricolage Grotesque',system-ui,sans-serif;
+  --f-body:'Nunito',system-ui,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1824;--surface:#16273A;--ink:#E6EEF6;--muted:#A3B4C6;--line:#2C4158;
+    --accent:#3CC2B8;--accent-ink:#0E1824;--accent-soft:#143A3E;
+    --ok:#5BD08D;--ok-bg:#153A29;--bad:#FF8F86;--bad-bg:#3F1D1B;--warn:#F2B35E;--warn-bg:#3D2C10;
+    --focus:#7FB0FF;color-scheme:dark}
+}
+:root[data-theme="dark"]{
+  --bg:#0E1824;--surface:#16273A;--ink:#E6EEF6;--muted:#A3B4C6;--line:#2C4158;
+  --accent:#3CC2B8;--accent-ink:#0E1824;--accent-soft:#143A3E;
+  --ok:#5BD08D;--ok-bg:#153A29;--bad:#FF8F86;--bad-bg:#3F1D1B;--warn:#F2B35E;--warn-bg:#3D2C10;
+  --focus:#7FB0FF;color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;padding-inline:16px;padding-block:20px 40px}
+.wrap{max-width:860px;margin-inline:auto;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.9rem,6vw,2.7rem);font-weight:800;letter-spacing:-.01em}
+h2{font-size:clamp(1.4rem,4.5vw,1.9rem);font-weight:800}
+h3{font-size:1.1rem;font-weight:600}
+p{margin:0}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.top{display:flex;flex-direction:column;gap:14px}
+#nav{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+#nav button{flex:0 0 auto;min-width:0}
+.pill{font:700 .9rem var(--f-body);border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;cursor:pointer;white-space:nowrap}
+.pill[aria-current="step"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.pill.done:not([aria-current="step"]){border-color:var(--ok);color:var(--ok)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px 20px;display:flex;flex-direction:column;gap:18px;min-width:0}
+.lead{color:var(--muted)}
+button{font-family:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.btn{font:700 1rem var(--f-body);background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:12px 20px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--line)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.row.between{justify-content:space-between}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;padding:0;margin:0;list-style:none}
+.steps li{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.steps strong{font-family:var(--f-display)}
+.steps span{color:var(--muted);font-size:.95rem}
+label{font-weight:700;display:block;margin-bottom:6px}
+input[type=text],input[type=password],textarea{width:100%;font:500 1.05rem var(--f-mono);color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:12px}
+textarea{font-family:var(--f-body);font-weight:400;min-height:90px;resize:vertical}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.meter{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.meter i{height:12px;border-radius:4px;background:var(--line)}
+.meter.low i.on{background:var(--bad)}.meter.mid i.on{background:var(--warn)}.meter.high i.on{background:var(--ok)}
+.checks{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px}
+.checks li{display:flex;gap:10px;align-items:baseline;color:var(--muted)}
+.checks li b{font-family:var(--f-mono);width:1.4em;flex:none}
+.checks li.yes{color:var(--ink)}.checks li.yes b{color:var(--ok)}
+.tip{background:var(--accent-soft);border-radius:10px;padding:12px 14px;font-size:.98rem}
+.chat{border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.chat .meta{font:500 .82rem var(--f-mono);color:var(--muted);overflow-wrap:anywhere}
+.chat .msg{background:var(--bg);border-radius:10px;padding:12px;overflow-wrap:anywhere}
+.chat .msg u{font-family:var(--f-mono);font-size:.92em}
+.choices{display:flex;gap:10px;flex-wrap:wrap}
+.choices.col{flex-direction:column}
+.choice{font:700 .98rem var(--f-body);text-align:left;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:10px 14px;cursor:pointer}
+.choice:hover:not(:disabled){border-color:var(--accent)}
+.choice:disabled{cursor:default}
+.choice.pick-ok{background:var(--ok-bg);border-color:var(--ok)}
+.choice.pick-bad{background:var(--bad-bg);border-color:var(--bad)}
+.choice.was-ok{border-color:var(--ok)}
+.fb{border-radius:10px;padding:12px 14px;font-size:.98rem}
+.fb.ok{background:var(--ok-bg)}.fb.bad{background:var(--bad-bg)}
+.fb strong{display:block;margin-bottom:2px}
+.scoreline{font:700 .95rem var(--f-body);color:var(--muted)}
+.cert{border:3px double var(--accent);border-radius:14px;padding:26px 20px;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
+.cert .big{font:800 clamp(2.2rem,9vw,3.4rem) var(--f-display);color:var(--accent)}
+.cert .nm{font:800 1.6rem var(--f-display);overflow-wrap:anywhere}
+.cert .pl{font-style:italic;max-width:46ch;overflow-wrap:anywhere}
+.bars{display:grid;gap:8px;width:100%;max-width:420px;text-align:left}
+.bars div{display:grid;grid-template-columns:7.5em 1fr 3em;gap:10px;align-items:center;font-size:.92rem}
+.bars span.t{height:10px;background:var(--line);border-radius:5px;overflow:hidden}
+.bars span.t i{display:block;height:100%;background:var(--accent)}
+details{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+summary{cursor:pointer;font-weight:700}
+details ul{margin:10px 0 0;padding-left:20px}
+@media (prefers-reduced-motion:no-preference){.meter i{transition:background .2s}.bars span.t i{transition:width .4s}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Tecnología e Informática · Grado 7</div>
+      <h1>Detectives Digitales</h1>
+    </div>
+    <nav id="nav" aria-label="Misiones"></nav>
+  </header>
+  <main id="stage" class="panel"></main>
+  <details>
+    <summary>Notas para el docente</summary>
+    <ul>
+      <li>Duración sugerida: 45 a 55 minutos, en parejas o de forma individual.</li>
+      <li>Propósito: que los estudiantes reconozcan riesgos comunes en internet y apliquen criterios para protegerse y cuidar a otros.</li>
+      <li>La página no guarda datos ni envía nada. Los resultados y el certificado quedan solo en la pantalla del estudiante, por eso conviene pedirles una captura o que se lo muestren.</li>
+      <li>Cierre sugerido: conversación en plenaria sobre la misión que más les costó y qué harían distinto en un caso real.</li>
+    </ul>
+  </details>
+</div>
+
+<script>
+const STEPS=['Inicio','1 · Contraseña','2 · Mensajes','3 · Mis datos','4 · Casos','Certificado'];
+const S={step:0,m1:0,m2:{},m3:{},m4:{}};
+const COMMON=['123456','contraseña','contrasena','password','qwerty','abc123','colombia','medellin','111111','admin','12345','clave'];
+
+const MSGS=[
+ {via:'WhatsApp',from:'+57 3•• ••• 4471 (número desconocido)',text:'¡Felicidades! Ganaste 500 diamantes gratis. Entra a <u>bit.ly/diamantes-ya</u> y escribe tu usuario y contraseña para reclamarlos.',safe:false,why:'Te ofrece un premio que no pediste, usa un enlace acortado y te pide la contraseña. Nadie legítimo la pide.'},
+ {via:'Google Classroom',from:'Profe de Tecnología (tu clase)',text:'Hola grupo, recuerden entregar la guía de hoy en Classroom antes del viernes.',safe:true,why:'Viene de la plataforma de tu clase, de una persona conocida, y no pide datos personales ni te manda a otro enlace.'},
+ {via:'Correo',from:'soporte@cuentas-verificar-ya.com',text:'URGENTE: tu cuenta será eliminada en 2 horas. Haz clic aquí para verificarla: <u>cuentas-verificar-ya.com/entrar</u>',safe:false,why:'Mete afán, el remitente tiene un dominio raro y el enlace te lleva a una página que no es la oficial. Es phishing.'},
+ {via:'Mensaje de texto',from:'Mamá (contacto guardado)',text:'Mijo, ya salí del trabajo. Paso por ti a las 5.',safe:true,why:'Es un contacto que conoces, el mensaje es normal en su forma de hablar y no trae enlaces ni pide nada raro.'},
+ {via:'Instagram',from:'Un compañero de tu curso',text:'oye mira este video tuyo jajaja 😱 <u>videos-tuyos.xyz/ver</u>',safe:false,why:'Despierta tu curiosidad y trae un enlace extraño. Puede ser su cuenta hackeada. Antes de abrirlo, pregúntale por otro medio o en persona.'},
+ {via:'Chat de un videojuego',from:'AdminJuego_Oficial',text:'Soy del soporte del juego. Te llegó un código por SMS, mándamelo para arreglar tu cuenta.',safe:false,why:'Los códigos de verificación son personales. Ningún soporte real te los pide, y quien los tenga puede entrar a tu cuenta.'}
+];
+const DATA=[
+ {t:'Mi videojuego o canción favorita',a:0,why:'Es un gusto personal que no te identifica ni te pone en riesgo.'},
+ {t:'Mi dibujo terminado de la clase de artística',a:0,why:'Puedes mostrar tu trabajo. Revisa que no incluya datos como tu dirección o tu cara si no quieres.'},
+ {t:'Mi número de celular',a:1,why:'Solo debe tenerlo la familia y amigos que conoces en persona. En un perfil público lo puede ver cualquiera.'},
+ {t:'Una foto con mi uniforme y el nombre de mi colegio',a:1,why:'Dice dónde estudias y a qué hora puedes estar ahí. Mejor solo con personas de confianza.'},
+ {t:'Mi ubicación en tiempo real',a:1,why:'Es útil con tu familia para saber que llegaste bien, pero no con desconocidos ni en historias públicas.'},
+ {t:'La contraseña de mi cuenta',a:2,why:'Es tu llave. Ni a tus mejores amigos: si la comparten, ya no es solo tuya.'},
+ {t:'El código de verificación que llega por SMS',a:2,why:'Sirve para entrar a tu cuenta. Quien te lo pida, aunque parezca soporte, quiere robártela.'},
+ {t:'Foto de mi tarjeta de identidad',a:2,why:'Con ese documento pueden hacerse pasar por ti. No se envía por chat ni redes.'}
+];
+const BINS=['Puedo publicarlo','Solo con gente de confianza','Nunca lo comparto'];
+const CASES=[
+ {q:'En el grupo de WhatsApp del curso alguien envía un meme que se burla de un compañero. ¿Qué haces?',o:[
+   ['Lo reenvío, es solo un chiste.',0,'Reenviarlo hace que más gente lo vea y le haga daño al compañero. Eso también es ciberacoso.'],
+   ['No lo reenvío, le escribo al compañero para apoyarlo y aviso a un profe o adulto de confianza.',1,'Cortar la cadena y acompañar a quien está afectado es lo que más ayuda.'],
+   ['Respondo con un meme peor para defenderlo.',0,'Responder con burlas hace crecer el problema. Es mejor reportar y apoyar.']]},
+ {q:'En un juego en línea, alguien que no conoces te pide una foto tuya y te dice que no le cuentes a nadie. ¿Qué haces?',o:[
+   ['Se la envío, parece buena gente.',0,'Pedir secretos es una señal de alerta. No puedes saber quién está detrás de la pantalla.'],
+   ['Lo bloqueo, lo reporto en el juego y le cuento a un adulto de confianza.',1,'Bloquear, reportar y contar es el camino seguro. Tú no hiciste nada malo.'],
+   ['Le pregunto quién es para decidir si confío.',0,'Cualquiera puede mentir sobre quién es. Es mejor cortar la conversación.']]},
+ {q:'Un compañero dejó su sesión abierta en el computador de la sala de informática y se fue al descanso. ¿Qué haces?',o:[
+   ['Escribo algo gracioso en su nombre.',0,'Suplantar a alguien puede meterlo en problemas y es una falta de respeto.'],
+   ['Cierro su sesión y le aviso después.',1,'Cerrar la sesión protege su información sin tocar nada suyo.'],
+   ['Miro sus mensajes solo un momento.',0,'Sus mensajes son privados. Mirarlos es invadir su intimidad.']]}
+];
+
+const $=s=>document.querySelector(s);
+const cnt=o=>Object.keys(o).length;
+const pct1=()=>S.m1/6;
+const right=(list,ans,fn)=>list.reduce((n,x,i)=>n+(ans[i]!==undefined&&fn(x,ans[i])?1:0),0);
+const pct2=()=>right(MSGS,S.m2,(m,a)=>(a===1)===m.safe)/MSGS.length;
+const pct3=()=>right(DATA,S.m3,(d,a)=>a===d.a)/DATA.length;
+const pct4=()=>right(CASES,S.m4,(c,a)=>c.o[a][1]===1)/CASES.length;
+const done=[()=>true,()=>S.m1===6,()=>cnt(S.m2)===MSGS.length,()=>cnt(S.m3)===DATA.length,()=>cnt(S.m4)===CASES.length,()=>false];
+
+function nav(){
+  $('#nav').innerHTML=STEPS.map((n,i)=>`<button class="pill${i>0&&i<5&&done[i]()?' done':''}" data-go="${i}"${i===S.step?' aria-current="step"':''}>${i>0&&i<5&&done[i]()?'✓ ':''}${n}</button>`).join('');
+}
+function pager(){
+  return `<div class="row between"><button class="btn ghost" data-go="${S.step-1}"${S.step===0?' hidden':''}>Anterior</button><button class="btn" data-go="${S.step+1}">${S.step===4?'Ver mi certificado':'Siguiente misión'}</button></div>`;
+}
+function view(){
+  nav();
+  const st=$('#stage');
+  if(S.step===0){
+    st.innerHTML=`<h2>Tu equipo necesita detectives</h2>
+    <p class="lead">En internet hay mensajes falsos, claves débiles y datos que se riegan sin que nos demos cuenta. Cumple cuatro misiones, consigue puntos y recibe tu certificado de Agente de Ciudadanía Digital.</p>
+    <ol class="steps">
+      <li><strong>1 · Contraseña</strong><span>Crea una clave fuerte y compruébala en vivo.</span></li>
+      <li><strong>2 · Mensajes</strong><span>Detecta cuáles son seguros y cuáles son una trampa.</span></li>
+      <li><strong>3 · Mis datos</strong><span>Decide qué compartir, a quién y qué nunca.</span></li>
+      <li><strong>4 · Casos</strong><span>Elige qué hacer en situaciones reales.</span></li>
+    </ol>
+    <div class="row"><button class="btn" data-go="1">Empezar la misión 1</button></div>`;
+  }
+  if(S.step===1){
+    st.innerHTML=`<div><div class="eyebrow">Misión 1</div><h2>Crea una contraseña fuerte</h2></div>
+    <p class="lead">Escribe una contraseña de práctica y mira cuántas condiciones cumple. Llega a las 6 para completar la misión.</p>
+    <div class="tip"><strong>Importante:</strong> no uses una contraseña que ya tengas en alguna cuenta. Esta es solo para practicar.</div>
+    <div class="fields">
+      <div><label for="apodo">Tu apodo (opcional)</label><input type="text" id="apodo" autocomplete="off" placeholder="Ej: Cami"></div>
+      <div><label for="clave">Contraseña de práctica</label><input type="password" id="clave" autocomplete="off" placeholder="Escríbela aquí"></div>
+    </div>
+    <label style="font-weight:400"><input type="checkbox" id="ver"> Mostrar lo que escribo</label>
+    <div id="meter" class="meter low" role="img" aria-label="Nivel de seguridad"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <p id="nivel" class="scoreline"></p>
+    <ul id="checks" class="checks"></ul>
+    <div class="tip">Una frase larga es más fácil de recordar y más difícil de adivinar. Ejemplo para inspirarte, no para copiar: <code>Tres-gatos-saltan-7-vallas!</code></div>
+    ${pager()}`;
+    upd1();
+  }
+  if(S.step===2){
+    st.innerHTML=`<div><div class="eyebrow">Misión 2</div><h2>¿Seguro o sospechoso?</h2></div>
+    <p class="lead">Lee cada mensaje y decide. Fíjate en quién escribe, qué pide y adónde te manda.</p>
+    ${MSGS.map((m,i)=>{const a=S.m2[i],has=a!==undefined,ok=has&&((a===1)===m.safe);
+      return `<div class="chat"><div class="meta">${m.via} · ${m.from}</div><div class="msg">${m.text}</div>
+      <div class="choices">${['Es sospechoso','Es seguro'].map((l,k)=>{const v=k===0?0:1;
+        let c='choice';if(has){if(v===a)c+=ok?' pick-ok':' pick-bad';else if((v===1)===m.safe)c+=' was-ok'}
+        return `<button class="${c}" data-act="m2" data-i="${i}" data-v="${v}"${has?' disabled':''}>${l}</button>`}).join('')}</div>
+      ${has?`<div class="fb ${ok?'ok':'bad'}"><strong>${ok?'¡Bien visto!':'Ojo con este'}</strong>${m.why}</div>`:''}</div>`}).join('')}
+    <p class="scoreline">Respondidos: ${cnt(S.m2)} de ${MSGS.length} · Aciertos: ${right(MSGS,S.m2,(m,a)=>(a===1)===m.safe)}</p>
+    ${pager()}`;
+  }
+  if(S.step===3){
+    st.innerHTML=`<div><div class="eyebrow">Misión 3</div><h2>Mis datos, mis reglas</h2></div>
+    <p class="lead">Para cada dato, elige dónde lo ubicas. Algunos se pueden publicar, otros solo con gente de confianza y otros no se comparten nunca.</p>
+    ${DATA.map((d,i)=>{const a=S.m3[i],has=a!==undefined,ok=has&&a===d.a;
+      return `<div class="chat"><h3>${d.t}</h3>
+      <div class="choices">${BINS.map((l,k)=>{let c='choice';if(has){if(k===a)c+=ok?' pick-ok':' pick-bad';else if(k===d.a)c+=' was-ok'}
+        return `<button class="${c}" data-act="m3" data-i="${i}" data-v="${k}"${has?' disabled':''}>${l}</button>`}).join('')}</div>
+      ${has?`<div class="fb ${ok?'ok':'bad'}"><strong>${ok?'Correcto':'Mejor así: '+BINS[d.a]}</strong>${d.why}</div>`:''}</div>`}).join('')}
+    <p class="scoreline">Clasificados: ${cnt(S.m3)} de ${DATA.length} · Aciertos: ${right(DATA,S.m3,(d,a)=>a===d.a)}</p>
+    ${pager()}`;
+  }
+  if(S.step===4){
+    st.innerHTML=`<div><div class="eyebrow">Misión 4</div><h2>¿Qué harías tú?</h2></div>
+    <p class="lead">Estas situaciones pasan de verdad. Elige la mejor decisión.</p>
+    ${CASES.map((c,i)=>{const a=S.m4[i],has=a!==undefined;
+      return `<div class="chat"><h3>${c.q}</h3>
+      <div class="choices col">${c.o.map((o,k)=>{let cl='choice';if(has){if(k===a)cl+=o[1]?' pick-ok':' pick-bad';else if(o[1])cl+=' was-ok'}
+        return `<button class="${cl}" data-act="m4" data-i="${i}" data-v="${k}"${has?' disabled':''}>${o[0]}</button>`}).join('')}</div>
+      ${has?`<div class="fb ${c.o[a][1]?'ok':'bad'}"><strong>${c.o[a][1]?'Buena decisión':'Piénsalo otra vez'}</strong>${c.o[a][2]}</div>`:''}</div>`}).join('')}
+    <p class="scoreline">Respondidos: ${cnt(S.m4)} de ${CASES.length}</p>
+    ${pager()}`;
+  }
+  if(S.step===5){
+    const rows=[['Contraseña',pct1()],['Mensajes',pct2()],['Mis datos',pct3()],['Casos',pct4()]];
+    const total=Math.round(rows.reduce((s,r)=>s+r[1],0)/4*100);
+    const fin=[1,2,3,4].filter(i=>done[i]()).length;
+    const rank=total>=85?'Detective digital experto':total>=60?'Agente en práctica':'Aprendiz de detective';
+    const msg=fin<4?`Completaste ${fin} de 4 misiones. Puedes volver a las que falten.`:'¡Completaste las cuatro misiones!';
+    st.innerHTML=`<div><div class="eyebrow">Resultado</div><h2>Tu certificado</h2></div>
+    <p class="lead">${msg}</p>
+    <div class="fields">
+      <div><label for="nombre">Tu nombre</label><input type="text" id="nombre" style="font-family:var(--f-body)" autocomplete="off" placeholder="Nombre y apellido"></div>
+      <div><label for="comp">Mi compromiso para cuidarme en internet</label><textarea id="comp" placeholder="Escribe una frase con lo que vas a hacer desde hoy"></textarea></div>
+    </div>
+    <div class="cert" id="cert">
+      <div class="eyebrow">Agente de Ciudadanía Digital · Grado 7</div>
+      <div class="nm" id="cNombre">Tu nombre aquí</div>
+      <div>obtuvo el rango de</div>
+      <div class="big">${rank}</div>
+      <div class="scoreline">${total} puntos de 100 · ${new Date().toLocaleDateString('es-CO',{day:'numeric',month:'long',year:'numeric'})}</div>
+      <div class="bars">${rows.map(r=>`<div><span>${r[0]}</span><span class="t"><i style="width:${Math.round(r[1]*100)}%"></i></span><span>${Math.round(r[1]*100)}%</span></div>`).join('')}</div>
+      <p class="pl" id="cComp"></p>
+    </div>
+    <p class="lead">Toma una captura de pantalla de tu certificado y muéstrasela a tu profe.</p>
+    <div class="row between"><button class="btn ghost" data-go="4">Anterior</button><button class="btn ghost" data-act="reset">Reiniciar todo</button></div>`;
+    $('#nombre').addEventListener('input',e=>{$('#cNombre').textContent=e.target.value.trim()||'Tu nombre aquí'});
+    $('#comp').addEventListener('input',e=>{const v=e.target.value.trim();$('#cComp').textContent=v?'«'+v+'»':''});
+  }
+}
+
+function upd1(){
+  const v=$('#clave').value,lv=v.toLowerCase(),ap=$('#apodo').value.trim().toLowerCase();
+  const C=[
+    ['Tiene 10 caracteres o más',v.length>=10],
+    ['Tiene una letra mayúscula',/[A-ZÁÉÍÓÚÑ]/.test(v)],
+    ['Tiene una letra minúscula',/[a-záéíóúñ]/.test(v)],
+    ['Tiene un número',/\d/.test(v)],
+    ['Tiene un símbolo (! - _ # $ %)',/[^A-Za-z0-9ÁÉÍÓÚÑáéíóúñ\s]/.test(v)],
+    ['No usa palabras comunes ni tu apodo',v.length>0&&!COMMON.some(w=>lv.includes(w))&&!(ap.length>=3&&lv.includes(ap))]
+  ];
+  const met=C.filter(c=>c[1]).length;
+  S.m1=Math.max(S.m1,met);
+  $('#checks').innerHTML=C.map(c=>`<li class="${c[1]?'yes':''}"><b>${c[1]?'✓':'·'}</b>${c[0]}</li>`).join('');
+  const m=$('#meter');m.className='meter '+(met<=2?'low':met<=4?'mid':'high');
+  [...m.children].forEach((el,i)=>el.classList.toggle('on',i<met));
+  $('#nivel').textContent=(met===6?'¡Muy fuerte! Misión completada. ':met>=5?'Casi lista. ':met>=3?'Va mejorando. ':'Muy débil. ')+'Cumples '+met+' de 6 · Mejor resultado: '+S.m1+' de 6';
+  nav();
+}
+
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]');
+  if(g){S.step=+g.dataset.go;view();window.scrollTo({top:0});return}
+  const a=e.target.closest('[data-act]');
+  if(!a)return;
+  const act=a.dataset.act;
+  if(act==='reset'){S.step=0;S.m1=0;S.m2={};S.m3={};S.m4={};view();window.scrollTo({top:0});return}
+  const i=+a.dataset.i,v=+a.dataset.v;
+  if(S['m'+act.slice(1)][i]===undefined){S['m'+act.slice(1)][i]=v;view()}
+});
+document.addEventListener('input',e=>{
+  if(e.target.id==='clave'||e.target.id==='apodo')upd1();
+});
+document.addEventListener('change',e=>{
+  if(e.target.id==='ver')$('#clave').type=e.target.checked?'text':'password';
+});
+view();
+</script>
+
+</body></html>
